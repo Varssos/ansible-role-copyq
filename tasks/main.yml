@@ -15,7 +15,10 @@
 - name: Start copyq daemon
   ansible.builtin.shell:
     cmd: copyq --start-server
-  ignore_errors: true  # Fails in VM because it requires Qt/GUI
+  become: false  # must run as the desktop user, not root (copyq uses the user's X session)
+  environment:
+    DISPLAY: "{{ ansible_env.DISPLAY | default(':0') }}"
+  ignore_errors: true  # Fails in headless/VM environments without a display
 
 - name: Set "Show the tray menu" global shortcut using copyq eval
   ansible.builtin.shell:
@@ -50,8 +53,11 @@
 
           setCommands(cmds);
           '
+  become: false  # must run as the desktop user, not root (copyq uses the user's X session)
+  environment:
+    DISPLAY: "{{ ansible_env.DISPLAY | default(':0') }}"
   retries: 2
   delay: 1
   until: copyq_shortcut_result.rc == 0
   register: copyq_shortcut_result
-  ignore_errors: true  # Fails in VM because it requires Qt/GUI
+  ignore_errors: true  # Fails in headless/VM environments without a display
