@@ -17,7 +17,7 @@
     cmd: copyq --start-server
   become: false  # must run as the desktop user, not root (copyq uses the user's X session)
   environment:
-    DISPLAY: "{{ ansible_env.DISPLAY | default(':0') }}"
+    DISPLAY: "{{ ansible_facts['env']['DISPLAY'] | default(':0') }}"
   changed_when: false  # only ensures the daemon is running, no persistent state to track
   ignore_errors: true  # Fails in headless/VM environments without a display
 
@@ -56,7 +56,7 @@
           '
   become: false  # must run as the desktop user, not root (copyq uses the user's X session)
   environment:
-    DISPLAY: "{{ ansible_env.DISPLAY | default(':0') }}"
+    DISPLAY: "{{ ansible_facts['env']['DISPLAY'] | default(':0') }}"
   retries: 2
   delay: 1
   until: copyq_shortcut_result.rc == 0
